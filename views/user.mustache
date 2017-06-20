@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>{{name}}</title>
+    <link rel="stylesheet" href="main.css">
+  </head>
+  <body>
+    {{#users}}
+    <div class="user-page-container-1">
+      <img class="user-img" src={{avatar}} alt={{username}}>
+      <h1>{{name}}</h1>
+      <p class="address-line">{{#address.city}}{{address.city}},{{/address.city}} {{address.country}} {{^address.city}}{{/address.city}} | {{#job}}{{job}},{{/job}} {{#company}}{{company}}{{/company}} {{^job}}Available for Hire{{/job}}</p>
+      <p>{{email}} | {{phone}}</p>
+    </div>
+    <div class="user-page-container-2">
+      <h3>Education:</h3>
+      <p>{{university}}</p>
+      <h3>Skills:</h3>
+      {{#skills}}
+      <p>{{.}}</p>
+      {{/skills}}
+    </div>
+    {{/users}}
+  </body>
+</html>
