@@ -1,5 +1,4 @@
 const express = require('express');
-const data = require('./data.js');
 const path = require('path');
 const mustacheExpress = require('mustache-express');
 const router = require('./routes/index');
@@ -16,29 +15,45 @@ app.set('view engine', 'mustache');
 
 app.use(express.static(__dirname + '/public'));
 
+MongoClient.connect(url, function(err, db) {
+  if (err) {
+    throw err;
+  } else {
+    console.log('Successfully connected to the database');
+  }
+  const data = require("./data");
+  for (var i = 0; i < data.users.length; i++) {
+    const user = data.users[i];
+    db.collection("users").updateOne(
+      {id: user.id},
+      user,
+      {upsert: true}
+    )
+  }
+})
+
 app.get('/', function (req, res) {
-  MongoClient.connect(url, function(err, db) {
-    if (err) {
-      throw err;
-    } else {
-      console.log('Successfully connected to the database');
-    }
-    const data = require("./data");
-    for (var i = 0; i < data.users.length; i++) {
-      const user = data.users[i];
-      db.collection("users").updateOne(
-        {id: user.id},
-        user,
-        {upsert: true}
-      )
-    }
+  MongoClient.connect(url, function(err, db){
+    db.collection("users")
+    .find()
+    .toArray(function(err, users){
+      res.render('index', {users:users});
+    })
   })
-  res.render('index', {users:data.users});
 })
 
 app.get('/:id', function(req, res){
-  var inputID = req.params.id - 1;
-  res.render('user', {users:data.users[inputID]});
+  MongoClient.connect(url, function(err, db){
+    const inputID = parseInt(req.params.id);
+
+    db.collection("users")
+    .findOne({
+      id: inputID
+    }, function(err, user){
+      console.log('user', user)
+      res.render('user', {users: [user]});
+    })
+  })
 })
 
 app.listen(3000, function () {
